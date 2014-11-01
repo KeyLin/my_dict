@@ -6,8 +6,10 @@ import pyperclip
 
 
 class Pydict:
-    def __init__(self, dictionary='my_dict.txt'):
+    def __init__(self, dictionary='my_dict.txt',visible=False,record=False):
         self.dictionary = dictionary
+        self.visible = visible
+        self.record = record
 
     def usage(self):
         print 'usage: must be english word'
@@ -20,9 +22,14 @@ class Pydict:
         assert isinstance(html, str)
         return html
 
-    def add(self, word):
-        myword = open(self.mywords, 'a')
-        myword.write(word+'\n')
+    def add(self, words):
+        myword = open(self.dictionary, 'a')
+        #print type(words)
+        if type(words) == list:
+            for word in words:
+                myword.write(word+'\n')
+        if type(words) == str:
+            myword.write(words+'\n')
         myword.close()
 
     @staticmethod
@@ -46,20 +53,30 @@ class Pydict:
             print each
             print '############################################################################################'
 
-    def search(self, src):
+    def search(words):
         """
         search  words
         :rtype : str
         """
-        words = self.clean()
-        for word in words:
-            print word
-            Pydict.add(word)
-            return Pydict.crawl_html()
+        if type(words) == list:
+            for word in words:
+                return Pydict.crawl_html(word)
+        if type(words) == str:
+            return Pydict.crawl_html(words)
+
+
+    def show(words):
+        if type(words) == list:
+            for word in words:
+                print(Pydict.search(word))
+        if type(words) == str:
+            print words
+            print(Pydict.search(words))
+            
 
     @staticmethod
     def input():
-        prompt = u'单词:'
+        prompt = u'Word:'
         prompt = prompt.encode('utf-8')
         while True:
             try:
@@ -67,15 +84,18 @@ class Pydict:
             except EOFError, e:
                 print str(e)
 
-    @staticmethod
-    def monitor():
+    def monitor(self):
         tmp = ''
         while True:
             try:
                 src = pyperclip.paste()
                 if isinstance(src, unicode) and src != tmp:
                     tmp = src
-                    return src
+                    words = self.clean(src)
+                    if self.visible:
+                        self.show(words)
+                    if self.record:
+                        self.add(words)
             except ValueError:
                 pass
             time.sleep(1)
