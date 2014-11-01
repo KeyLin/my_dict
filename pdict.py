@@ -38,7 +38,7 @@ def word_clean(src):
 
 
 def print_page(html):
-    #print '############################################################################################'
+    #print '################################################################################'
     pattern0 = re.compile('<li><span>.*</span><strong>.*</strong></li>')
     pattern1 = re.compile('<li><strong>.*</strong>')
     result0 = pattern0.findall(html)
@@ -51,7 +51,7 @@ def print_page(html):
         each = re.sub('</*\w*>', '', each)
         each = each.decode('utf-8')
         print each
-    print '############################################################################################'
+    print '################################################################################'
 
 
 def word_search(word):
