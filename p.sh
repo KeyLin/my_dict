@@ -1,4 +1,4 @@
-git add .
+git add --all
 echo $1
 if [ $1 ]; then
 	git commit -m '\$1'
