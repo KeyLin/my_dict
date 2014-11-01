@@ -4,3 +4,4 @@ if [ '$1' ]; then
 else
 	git commit -m 'default'
 fi
+git push
