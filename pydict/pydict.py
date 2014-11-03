@@ -34,6 +34,7 @@ class Pydict:
 
     @staticmethod
     def clean(src):
+        print src
         words = re.findall('[A-Za-z]+', src)
         return words
 
@@ -89,6 +90,7 @@ class Pydict:
         while True:
             try:
                 src = pyperclip.paste()
+                #print src
                 if isinstance(src, unicode) and src != tmp:
                     tmp = src
                     words = self.clean(src)
@@ -97,5 +99,6 @@ class Pydict:
                     if self.record:
                         self.add(words)
             except ValueError:
-                pass
-            time.sleep(1)
+                #print 'sb'
+                pass 
+            time.sleep(5)
