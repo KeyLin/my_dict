@@ -3,26 +3,27 @@ import re
 import time
 import urllib2
 import pyperclip
+from multiprocessing import Process,Queue
 
 
 class Pydict:
-    def __init__(self, dictionary='my_dict.txt',visible=False,record=False):
+    def __init__(self, dictionary='my_dict.txt',visible=False,record=False,queue=Queue()):
         self.dictionary = dictionary
         self.visible = visible
         self.record = record
+        self.q = queue
 
     def usage(self):
         print 'usage: must be english word'
 
-    @staticmethod
-    def crawl_html(queryword):
+    def crawl_html(self, queryword):
         assert isinstance(queryword, str)
         req = u'http://m.dict.cn/' + queryword
         html = urllib2.urlopen(url=req, timeout=10).read()
         assert isinstance(html, str)
         return html
 
-    def add(self, words):
+    def addToTXT(self, words):
         myword = open(self.dictionary, 'a')
         #print type(words)
         if type(words) == list:
@@ -32,11 +33,13 @@ class Pydict:
             myword.write(words+'\n')
         myword.close()
 
-    @staticmethod
-    def clean(src):
-        print src
+
+    def clean(self,src):
+        #print src
         words = re.findall('[A-Za-z]+', src)
-        return words
+        for word in words:
+            self.q.put(word)
+
 
     @staticmethod
     def print_page(html):
@@ -52,40 +55,37 @@ class Pydict:
             each = re.sub('</*\w*>', '', each)
             each = each.decode('utf-8')
             print each
-            print '############################################################################################'
-
-    def search(words):
-        """
-        search  words
-        :rtype : str
-        """
-        if type(words) == list:
-            for word in words:
-                return Pydict.crawl_html(word)
-        if type(words) == str:
-            return Pydict.crawl_html(words)
+        print '################################################################################'
 
 
-    def show(words):
-        if type(words) == list:
-            for word in words:
-                print(Pydict.search(word))
-        if type(words) == str:
-            print words
-            print(Pydict.search(words))
+    def resolve(self):
+        while ~self.q.empty():
+            word = self.q.get(True)
+            if ~isinstance(word, str):
+                word = str(word)
+            #print type(word)
+            print word
+            if self.visible:
+                self.print_page(self.crawl_html(word))
+            if self.record:
+                self.addToTXT(word)
             
 
-    @staticmethod
-    def input():
-        prompt = u'Word:'
+    def input(self):
+        prompt = u'Input:'
         prompt = prompt.encode('utf-8')
         while True:
             try:
-                return raw_input(prompt)
+                src = raw_input(prompt)
+                print '\n'
+                if isinstance(src, str):
+                    self.clean(src)
             except EOFError, e:
                 print str(e)
+            time.sleep(1)
 
-    def monitor(self):
+
+    def monitorClip(self):
         tmp = ''
         while True:
             try:
@@ -93,12 +93,12 @@ class Pydict:
                 #print src
                 if isinstance(src, unicode) and src != tmp:
                     tmp = src
-                    words = self.clean(src)
-                    if self.visible:
-                        self.show(words)
-                    if self.record:
-                        self.add(words)
+                    self.clean(src)
+                    #print type(words)
+                    #if self.visible:
+                        #self.getResult(words)
+                    #elif self.record:
+                        #self.addToTXT(words)
             except ValueError:
-                #print 'sb'
                 pass 
-            time.sleep(5)
+            time.sleep(3)
