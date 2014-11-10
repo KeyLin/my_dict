@@ -12,3 +12,4 @@ if __name__ == '__main__':
 	dic.input()
 	p1.join()
 	p2.join()
+	print 'Process end.'
