@@ -111,7 +111,6 @@ class Pydict:
     def cmd_input(self):
         prompt = u'Input:'
         prompt = prompt.encode('utf-8')
-        #print 'SB'
         while True:
             try:
                 #print '2B'
