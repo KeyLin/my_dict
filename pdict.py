@@ -1,5 +1,6 @@
 #! /usr/bin/python
 # -*-  coding=utf8  -*-
+import tkMessageBox
 import re
 import Tkinter
 import time
@@ -53,6 +54,28 @@ def print_page(html):
         print each
     print '################################################################################'
 
+def page_clean(html):
+    pattern0 = re.compile('<li><span>.*</span><strong>.*</strong></li>')
+    pattern1 = re.compile('<li><strong>.*</strong>')
+    result0 = pattern0.findall(html)
+    result1 = pattern1.findall(html)
+    result = ''
+    #print type(result0)
+    for each in result0:
+        each = re.sub('</*\w*>', '', each)
+        #each = each.decode('utf-8')
+        #print each
+        #print type(each)
+        result = result + each+'\n'
+    for each in result1:
+        each = re.sub('</*\w*>', '', each)
+        #each = each.decode('utf-8')
+        #print each
+        result = result + each+'\n'
+    result = result.decode('utf-8')
+    #print result
+    #print '################################################################################'
+    return result
 
 def word_search(word):
     word_add(word)
@@ -60,13 +83,15 @@ def word_search(word):
         usage()
     else:
         html = crawl_html(word)
+        html = page_clean(html)
         print word
-        print_page(html)
+        #print_page(html)
+        return html
 
 
 def word_input():
     prompt = u'单词：'
-    prompt = prompt.encode('utf-8')
+    prompt = prompt.encode('GBK')
     while True:
         try:
             argv = raw_input(prompt)
@@ -89,15 +114,22 @@ def monitor():
 
 
 def say_hello():
-    print 'hello,gui !'
+    word = root.nameInput.get() or 'world'
+    print word
+    html = word_search(word)
+    tkMessageBox.showinfo(word, '%s' % html )
+
 
 
 def gui():
+    global root 
     root = Tkinter.Tk()
-    root.title('My dictionary!')
-    root.geometry('250x300')
-    com = Tkinter.Button(root, text='hello', command=say_hello)
-    com.pack(side=Tkinter.BOTTOM)
+    #root.pack()
+    root.nameInput = Tkinter.Entry(root)
+    root.nameInput.pack()
+    root.alertButton = Tkinter.Button(root, text='Hello', command=say_hello)
+    root.alertButton.pack()
+    #tkMessageBox.showinfo('Message', 'Hello, %s' % name)
     root.mainloop()
 
 
@@ -106,6 +138,6 @@ if __name__ == "__main__":
     #p2 = multiprocessing.Process(name='dict', target=word_input)
     #p1.start()
     #p2.start()
-    #gui()
-    monitor()
-    #word_input()
+    gui()
+    #monitor()
+    word_input()
