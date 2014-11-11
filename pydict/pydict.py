@@ -59,7 +59,7 @@ class Pydict:
 
 
     def resolve(self):
-        while ~self.q.empty():
+        while True:
             word = self.q.get(True)
             if ~isinstance(word, str):
                 word = str(word)
@@ -94,11 +94,6 @@ class Pydict:
                 if isinstance(src, unicode) and src != tmp:
                     tmp = src
                     self.clean(src)
-                    #print type(words)
-                    #if self.visible:
-                        #self.getResult(words)
-                    #elif self.record:
-                        #self.addToTXT(words)
             except ValueError:
                 pass 
             time.sleep(3)
