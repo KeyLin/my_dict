@@ -74,10 +74,13 @@ class Pydict:
     def input(self):
         prompt = u'Input:'
         prompt = prompt.encode('utf-8')
+        #print 'SB'
         while True:
             try:
+                #print '2B'
                 src = raw_input(prompt)
                 print '\n'
+                #print type(src)+'sb'
                 if isinstance(src, str):
                     self.clean(src)
             except EOFError, e:
