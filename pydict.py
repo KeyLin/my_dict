@@ -128,7 +128,6 @@ class Pydict:
     def get_word(self):
         word = self.r.nameInput.get() or 'sb'
         #print word
-        #tkMessageBox.showinfo(word)
         self.clean(word)
         self.gui_resolve()
 
