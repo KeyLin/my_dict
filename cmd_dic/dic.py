@@ -1,7 +1,5 @@
 __author__ = 'lenovo'
 import re
-import tkMessageBox
-import Tkinter
 import time
 import urllib2
 import pyperclip
@@ -9,13 +7,11 @@ from multiprocessing import Process,Queue
 
 
 class Pydict:
-    def __init__(self, dictionary='my_dict.txt',visible=False,gui=False):
+    def __init__(self, dictionary='my_dict.txt',visible=False,record=False,queue=Queue()):
         self.dictionary = dictionary
         self.visible = visible
-        self.q = Queue()
-        if gui:
-            self.r = Tkinter.Tk()
-            #self.bub = Tkinter.Tk()
+        self.record = record
+        self.q = queue
 
     def usage(self):
         print 'usage: must be english word'
@@ -43,7 +39,6 @@ class Pydict:
         words = re.findall('[A-Za-z]+', src)
         for word in words:
             self.q.put(word)
-        #self.gui_resolve()
 
 
     @staticmethod
@@ -62,22 +57,6 @@ class Pydict:
             print each
         print '################################################################################'
 
-    @staticmethod
-    def clean_page(html):
-        pattern0 = re.compile('<li><span>.*</span><strong>.*</strong></li>')
-        pattern1 = re.compile('<li><strong>.*</strong>')
-        result0 = pattern0.findall(html)
-        result1 = pattern1.findall(html)
-        result = ''
-        for each in result0:
-            each = re.sub('</*\w*>', '', each)
-            result = result + each+'\n'
-        for each in result1:
-            each = re.sub('</*\w*>', '', each)
-            result = result + each+'\n'
-        result = result.decode('utf-8')
-        return result
-
 
     def resolve(self):
         while True:
@@ -87,56 +66,23 @@ class Pydict:
             #print type(word)
             print word
             if self.visible:
-                result = self.clean_page(self.crawl_html(word))
-                flag = tkMessageBox.askquestion(word, '%s' % result )
-                #self.r.quit()
-                print flag
-                if flag == 'yes':
-                    self.addToTXT(word)
-
-
-    def gui_resolve(self):
-        self.bub.title('SB')
-        self.bub.alertButton = Tkinter.Button(self.r, text='2B', command=self.resolve)
-        self.bub.alertButton.pack()
-        self.bub.mainloop()
-        
+                self.print_page(self.crawl_html(word))
+            if self.record:
+                self.addToTXT(word)
             
 
-    def cmd_input(self):
+    def input(self):
         prompt = u'Input:'
         prompt = prompt.encode('utf-8')
         while True:
             try:
-                #print '2B'
                 src = raw_input(prompt)
                 print '\n'
-                #print type(src)+'sb'
                 if isinstance(src, str):
                     self.clean(src)
             except EOFError, e:
                 print str(e)
             time.sleep(1)
-
-
-    def get_word(self):
-        word = self.r.nameInput.get() or 'sb'
-        #print word
-        self.clean(word)
-        while True:
-            flag = tkMessageBox.askquestion(word)
-            time.sleep(10)
-        #self.gui_resolve()
-        #self.resolve()
-
-
-    def gui_input(self):
-        self.r.title('Dictionary')
-        self.r.nameInput = Tkinter.Entry(self.r)
-        self.r.nameInput.pack()
-        self.r.alertButton = Tkinter.Button(self.r, text='Search', command=self.get_word)
-        self.r.alertButton.pack()
-        self.r.mainloop()
 
 
     def monitorClip(self):
